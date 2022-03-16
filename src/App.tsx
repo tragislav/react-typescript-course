@@ -1,22 +1,42 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
 import Card, { CardVariant } from "./components/Card";
+import List from "./components/List";
+import TodoItem from "./components/TodoItem";
+import UserItem from "./components/UserItem";
 import UserList from "./components/UserList";
-import { IUser } from "./types/types";
+import { ITodo, IUser } from "./types/types";
 
 const App = () => {
-  const users: IUser[] = [
-    {
-      id: 1,
-      name: "Tomas",
-      email: "email@email.ru",
-      address: { city: "Vitebsk", street: "Titova", zipcode: "2100001" },
-    },
-    {
-      id: 2,
-      name: "Tragislav",
-      email: "email@email.ru",
-      address: { city: "Minsk", street: "Pobeda", zipcode: "2430007" },
-    },
-  ];
+  const [users, setUsers] = useState<IUser[]>([]);
+  const [todos, setTodos] = useState<ITodo[]>([]);
+
+  useEffect(() => {
+    fetchUsers();
+    fetchTodos();
+  }, []);
+
+  async function fetchUsers() {
+    try {
+      const response = await axios.get<IUser[]>(
+        "https://jsonplaceholder.typicode.com/users"
+      );
+      setUsers(response.data);
+    } catch (e) {
+      alert(e);
+    }
+  }
+
+  async function fetchTodos() {
+    try {
+      const response = await axios.get<ITodo[]>(
+        "https://jsonplaceholder.typicode.com/todos?_limit=10"
+      );
+      setTodos(response.data);
+    } catch (e) {
+      alert(e);
+    }
+  }
 
   return (
     <div>
@@ -28,7 +48,16 @@ const App = () => {
       >
         <button>fkkf</button>
       </Card>
-      <UserList users={users} />
+      <h3>USERS</h3>
+      <List
+        items={users}
+        renderItem={(user: IUser) => <UserItem user={user} key={user.id} />}
+      />
+      <h3>TODOS</h3>
+      <List
+        items={todos}
+        renderItem={(todo: ITodo) => <TodoItem todo={todo} key={todo.id} />}
+      />
     </div>
   );
 };
